@@ -1,74 +1,35 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class Main {
 
-    public static void main(String[] args) {
-        try {
-            //通过反射加载驱动
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+        InputStream in = new FileInputStream("C:\\Users\\walte\\Desktop\\dmsS.txt");
+        //写入相应的文件
+        OutputStream out = new FileOutputStream("C:\\Users\\walte\\Desktop\\dms.txt");
+        //读取数据
+        //一次性取多少字节
+        byte[] bytes = new byte[2048];
+        //接受读取的内容(n就代表的相关数据，只不过是数字的形式)
+        int n = -1;
+        //循环取出数据
+        String str = null;
+        while ((n = in.read(bytes,0,bytes.length)) != -1) {
+            //转换成字符串
+            str = new String(bytes,0,n,"GBK");
+            System.out.println(str);
+            //写入相关文件
+
         }
-        try
-                (
-                        //通过驱动获得连接
-                        Connection c = DriverManager.getConnection("jdbc:mysql://120.78.66.3:3306/walter?useUnicode=true&characterEncoding=utf-8&useSSL=false",
-                                "root",
-                                "root");
-                        //获得statement对象
-                        Statement s = c.createStatement();
-                )
-        {
-
-
-                String sql = "select * from id ";
-            List<String> ids = new ArrayList<>();
-                ResultSet set = s.executeQuery(sql);
-                while(set.next()){
-                    String id = set.getString("s");
-                    ids.add(id);
-                }
-            File file = new File("D:\\ids.txt");
-            OutputStream os = null;
-            try {
-
-                os = new FileOutputStream(file,true);
-                String string =ids.toString();
-                byte[] data = string.getBytes();
-
-                os.write(data, 0, data.length);
-                os.flush();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                System.out.println("文件没有找到！");
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("写入文件失败！");
-            }finally {
-                if (os != null) {
-                    try {
-                        os.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        System.out.println("关闭输出流失败！");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        str=str.replaceAll(" ","");
+        //关闭流
+        in.close();
+        out.write(str.getBytes(), 0, n);
+        out.flush();
+        out.close();
     }
 }
